@@ -153,7 +153,7 @@ fn fetch_and_print(client: &RpcClient, mint: &Pubkey) -> Result<()> {
         .context("No metadata account found — is this a valid NFT mint?")?;
 
     // The first byte is the Borsh discriminator; try_from_slice handles it as `key: u8`.
-    let metadata = NftMetadata::try_from_slice(&account.data)
+    let metadata = NftMetadata::deserialize(&mut &account.data[..])
         .context("Failed to deserialize metadata")?;
 
     // Metaplex pads fixed-length string fields with \0 — strip them.
