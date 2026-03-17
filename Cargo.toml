@@ -1,0 +1,19 @@
+[package]
+name = "nft-meta"
+version = "0.1.0"
+edition = "2021"
+description = "CLI to fetch on-chain NFT metadata from Solana"
+
+[dependencies]
+# CLI
+clap = { version = "4", features = ["derive"] }
+colored = "2"
+anyhow = "1"
+
+# Solana
+solana-client  = "1.18"
+solana-sdk     = "1.18"
+solana-transaction-status = "1.18"
+
+# Serialization
+borsh = "0.10"
