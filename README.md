@@ -1,6 +1,9 @@
 # nft-meta
 
-A Rust CLI to fetch on-chain NFT metadata from Solana — fully decoded, no truncation.
+A Rust CLI that **reads** on-chain NFT metadata from the [Metaplex Token Metadata](https://developers.metaplex.com/token-metadata) program on Solana.
+
+> **This tool is a read-only inspector.** It does not mint, update, or manage NFTs.
+> The NFTs it reads are created and owned by third parties through the Metaplex standard — `nft-meta` simply decodes and displays their on-chain metadata.
 
 ## Install
 
@@ -26,19 +29,6 @@ and print its full metadata.
 
 ### Using a custom RPC (optional but recommended for rate limits)
 
-**Inline:**
-```bash
-SOLANA_RPC_URL=https://your-rpc-endpoint.com cargo run -- mint <ADDRESS>
-```
-
-**Export once, run many times:**
-```bash
-export SOLANA_RPC_URL=https://your-rpc-endpoint.com
-cargo run -- mint <ADDRESS>
-cargo run -- tx <SIGNATURE>
-```
-
-**Via `--rpc-url` flag:**
 ```bash
 cargo run -- --rpc-url https://your-rpc-endpoint.com mint <ADDRESS>
 ```
