@@ -42,13 +42,24 @@ cargo run -- --rpc-url https://your-rpc-endpoint.com mint <ADDRESS>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  On-chain Metadata
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Name:                  Lot 11 — Soulbound #42
+  Mint:                  DtRy2fCC7GGir4TMMEcTowA4FgMqgu74BXrjnU8MGMb7
+  Name:                  Lot 11 ...
   Symbol:                S
-  URI:                   https://soulboundimages.s3.eu-west-3.amazonaws.com/a/mmq8nk3smq26om.json
+  URI:                   https://soulboundimages.s3.eu-west-3.amazonaws.com/a/mmq8nk3smq26om.j
   Update Authority:      HdknM9vFE15udMbju6CqisFthkN6yZE7kZvCc1...
   Seller Fee:            0 bps  (0%)
   Primary Sale:          false
   Is Mutable:            true
+  Edition Nonce:         252
+  Token Standard:        ProgrammableNonFungible
+
+ Collection
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  None
+
+ Uses
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  None
 
  Creators
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

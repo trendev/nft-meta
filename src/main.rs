@@ -147,7 +147,7 @@ fn main() -> Result<()> {
     match &cli.command {
         Commands::Mint { address } => {
             let mint = Pubkey::from_str(address).context("Invalid mint address")?;
-            fetch_and_print(&client, &mint)?;
+            fetch_and_print(&client, &mint, None)?;
         }
 
         Commands::Tx { signature } => {
@@ -155,7 +155,7 @@ fn main() -> Result<()> {
             println!("{}", "Scanning transaction accounts…".dimmed());
             let mint = find_mint_in_tx(&client, &sig)?;
             println!("{} {}\n", "Mint found:".dimmed(), mint.to_string().yellow());
-            fetch_and_print(&client, &mint)?;
+            fetch_and_print(&client, &mint, Some(&sig))?;
         }
     }
 
@@ -212,7 +212,7 @@ fn find_mint_in_tx(client: &RpcClient, sig: &Signature) -> Result<Pubkey> {
 }
 
 /// Fetch the on-chain metadata account, deserialize it, and pretty-print it.
-fn fetch_and_print(client: &RpcClient, mint: &Pubkey) -> Result<()> {
+fn fetch_and_print(client: &RpcClient, mint: &Pubkey, sig: Option<&Signature>) -> Result<()> {
     let pda = metadata_pda(mint);
 
     let account = client
@@ -232,6 +232,10 @@ fn fetch_and_print(client: &RpcClient, mint: &Pubkey) -> Result<()> {
     println!("{}", " On-chain Metadata".bold().green());
     println!("{}", divider.bold().green());
 
+    println!("  {:<22} {}", "Mint:".cyan(), mint.to_string().yellow());
+    if let Some(sig) = sig {
+        println!("  {:<22} {}", "Tx Signature:".cyan(), sig.to_string().yellow());
+    }
     println!("  {:<22} {}", "Name:".cyan(),    s(&metadata.data.name).yellow());
     println!("  {:<22} {}", "Symbol:".cyan(),  s(&metadata.data.symbol).yellow());
     println!("  {:<22} {}", "URI:".cyan(),      s(&metadata.data.uri).yellow());
