@@ -28,17 +28,84 @@ pub struct Data {
     pub creators: Option<Vec<Creator>>,
 }
 
-/// We only deserialize the fields we need.
-/// The trailing optional fields (edition_nonce, token_standard, collection…)
-/// are intentionally omitted — borsh reads sequentially so this is safe.
+#[derive(BorshDeserialize, Debug)]
+pub enum TokenStandard {
+    NonFungible,
+    FungibleAsset,
+    Fungible,
+    NonFungibleEdition,
+    ProgrammableNonFungible,
+    ProgrammableNonFungibleEdition,
+}
+
+impl std::fmt::Display for TokenStandard {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NonFungible => write!(f, "NonFungible"),
+            Self::FungibleAsset => write!(f, "FungibleAsset"),
+            Self::Fungible => write!(f, "Fungible"),
+            Self::NonFungibleEdition => write!(f, "NonFungibleEdition"),
+            Self::ProgrammableNonFungible => write!(f, "ProgrammableNonFungible"),
+            Self::ProgrammableNonFungibleEdition => write!(f, "ProgrammableNonFungibleEdition"),
+        }
+    }
+}
+
+#[derive(BorshDeserialize, Debug)]
+pub struct Collection {
+    pub verified: bool,
+    pub key: Pubkey,
+}
+
+#[derive(BorshDeserialize, Debug)]
+pub enum UseMethod {
+    Burn,
+    Multiple,
+    Single,
+}
+
+impl std::fmt::Display for UseMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Burn => write!(f, "Burn"),
+            Self::Multiple => write!(f, "Multiple"),
+            Self::Single => write!(f, "Single"),
+        }
+    }
+}
+
+#[derive(BorshDeserialize, Debug)]
+pub struct Uses {
+    pub use_method: UseMethod,
+    pub remaining: u64,
+    pub total: u64,
+}
+
+#[derive(BorshDeserialize, Debug)]
+pub enum CollectionDetails {
+    V1 { size: u64 },
+    V2 { padding: [u8; 8] },
+}
+
+#[derive(BorshDeserialize, Debug)]
+pub enum ProgrammableConfig {
+    V1 { rule_set: Option<Pubkey> },
+}
+
 #[derive(BorshDeserialize, Debug)]
 pub struct NftMetadata {
-    pub key: u8,                  // discriminator (4 = MetadataV1)
+    pub key: u8,
     pub update_authority: Pubkey,
     pub mint: Pubkey,
     pub data: Data,
     pub primary_sale_happened: bool,
     pub is_mutable: bool,
+    pub edition_nonce: Option<u8>,
+    pub token_standard: Option<TokenStandard>,
+    pub collection: Option<Collection>,
+    pub uses: Option<Uses>,
+    pub collection_details: Option<CollectionDetails>,
+    pub programmable_config: Option<ProgrammableConfig>,
 }
 
 // ── CLI definition ────────────────────────────────────────────────────────────
@@ -189,6 +256,46 @@ fn fetch_and_print(client: &RpcClient, mint: &Pubkey) -> Result<()> {
         "Is Mutable:".cyan(),
         fmt_bool(metadata.is_mutable)
     );
+    println!(
+        "  {:<22} {}",
+        "Edition Nonce:".cyan(),
+        metadata
+            .edition_nonce
+            .map_or("None".dimmed(), |n| n.to_string().yellow())
+    );
+    println!(
+        "  {:<22} {}",
+        "Token Standard:".cyan(),
+        metadata
+            .token_standard
+            .as_ref()
+            .map_or("None".dimmed(), |ts| ts.to_string().yellow())
+    );
+
+    // ── Collection ────────────────────────────────────────────────────────────
+    println!("\n{}", " Collection".bold().green());
+    println!("{}", divider.bold().green());
+
+    match &metadata.collection {
+        None => println!("  {}", "None".dimmed()),
+        Some(col) => {
+            println!("    {:<14} {}", "Key:".cyan(), col.key.to_string().yellow());
+            println!("    {:<14} {}", "Verified:".cyan(), fmt_bool(col.verified));
+        }
+    }
+
+    // ── Uses ──────────────────────────────────────────────────────────────────
+    println!("\n{}", " Uses".bold().green());
+    println!("{}", divider.bold().green());
+
+    match &metadata.uses {
+        None => println!("  {}", "None".dimmed()),
+        Some(uses) => {
+            println!("    {:<14} {}", "Method:".cyan(), uses.use_method.to_string().yellow());
+            println!("    {:<14} {}", "Remaining:".cyan(), uses.remaining.to_string().yellow());
+            println!("    {:<14} {}", "Total:".cyan(), uses.total.to_string().yellow());
+        }
+    }
 
     // ── Creators ──────────────────────────────────────────────────────────────
     println!("\n{}", " Creators".bold().green());
@@ -199,9 +306,9 @@ fn fetch_and_print(client: &RpcClient, mint: &Pubkey) -> Result<()> {
         Some(creators) => {
             for (i, c) in creators.iter().enumerate() {
                 println!("  {} #{}", "Creator".cyan(), i + 1);
-                println!("    {:<14} {}", "Address:".cyan(),  c.address.to_string().yellow());
+                println!("    {:<14} {}", "Address:".cyan(), c.address.to_string().yellow());
                 println!("    {:<14} {}", "Verified:".cyan(), fmt_bool(c.verified));
-                println!("    {:<14} {}%", "Share:".cyan(),   c.share);
+                println!("    {:<14} {}%", "Share:".cyan(), c.share);
             }
         }
     }
