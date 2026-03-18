@@ -50,6 +50,14 @@ cargo run -- -c https://your-rpc-endpoint.com mint <ADDRESS>
 > ⚠️ Note the `--` separator between `cargo run` and your CLI arguments.
 > Everything after `--` is passed to your program, not to Cargo.
 
+### Getting help
+
+```bash
+cargo run -- --help          # general help
+cargo run -- mint --help     # mint subcommand help
+cargo run -- tx --help       # tx subcommand help
+```
+
 ## Output example
 
 ```
