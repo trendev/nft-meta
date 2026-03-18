@@ -108,6 +108,18 @@ pub struct NftMetadata {
     pub programmable_config: Option<ProgrammableConfig>,
 }
 
+// ── Cluster helpers ──────────────────────────────────────────────────────────
+
+fn cluster_to_url(cluster: &str) -> &str {
+    match cluster {
+        "mainnet" | "mainnet-beta" => "https://api.mainnet-beta.solana.com",
+        "testnet" => "https://api.testnet.solana.com",
+        "devnet" => "https://api.devnet.solana.com",
+        "localhost" => "http://localhost:8899",
+        url => url, // treat as a raw URL
+    }
+}
+
 // ── CLI definition ────────────────────────────────────────────────────────────
 
 #[derive(Parser)]
@@ -115,9 +127,9 @@ pub struct NftMetadata {
 #[command(about = "🔍 Fetch on-chain NFT metadata from Solana")]
 #[command(version)]
 struct Cli {
-    /// Solana RPC endpoint [default: mainnet-beta]
-    #[arg(short, long, default_value = "https://api.mainnet-beta.solana.com")]
-    rpc_url: String,
+    /// Solana cluster or RPC URL [mainnet, testnet, devnet, localhost, or a custom URL]
+    #[arg(short, long, default_value = "mainnet")]
+    cluster: String,
 
     #[command(subcommand)]
     command: Commands,
@@ -141,8 +153,8 @@ enum Commands {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let client =
-        RpcClient::new_with_commitment(cli.rpc_url.clone(), CommitmentConfig::confirmed());
+    let rpc_url = cluster_to_url(&cli.cluster);
+    let client = RpcClient::new_with_commitment(rpc_url.to_string(), CommitmentConfig::confirmed());
 
     match &cli.command {
         Commands::Mint { address } => {

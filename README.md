@@ -17,20 +17,34 @@ cargo install --path .
 
 ### From a mint address
 ```bash
-cargo run -- mint DtRy2fCC7GGir4TMMEcTowA4FgMqgu74BXrjnU8MGMb7
+cargo run -- mint <ADDRESS>
 ```
 
 ### From a transaction signature
 ```bash
-cargo run -- tx 5KtPn3...yourTxSignature...
+cargo run -- tx <SIGNATURE>
 ```
 The CLI will scan all accounts in the transaction, auto-detect the NFT mint,
 and print its full metadata.
 
-### Using a custom RPC (optional but recommended for rate limits)
+### Choosing a cluster
+
+Use `--cluster` (or `-c`) to select a Solana network:
+
+| Value          | RPC endpoint                              |
+|----------------|-------------------------------------------|
+| `mainnet` (default) | `https://api.mainnet-beta.solana.com` |
+| `testnet`      | `https://api.testnet.solana.com`          |
+| `devnet`       | `https://api.devnet.solana.com`           |
+| `localhost`    | `http://localhost:8899`                   |
+| Any URL        | Used as-is                                |
 
 ```bash
-cargo run -- --rpc-url https://your-rpc-endpoint.com mint <ADDRESS>
+# Devnet
+cargo run -- -c devnet mint <ADDRESS>
+
+# Custom RPC
+cargo run -- -c https://your-rpc-endpoint.com mint <ADDRESS>
 ```
 
 > ⚠️ Note the `--` separator between `cargo run` and your CLI arguments.
